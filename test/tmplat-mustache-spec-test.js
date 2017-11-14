@@ -34,11 +34,11 @@ var skipTests = {
 };
 
 // You can run the skiped tests by setting the NOSKIP environment variable to
-// true (e.g. NOSKIP=true mocha test/mustache-spec-test.js)
+// true (e.g. NOSKIP=true mocha test/tmplat-mustache-spec-test.js)
 var noSkip = process.env.NOSKIP;
 
 // You can put the name of a specific test file to run in the TEST environment
-// variable (e.g. TEST=interpolation mocha test/mustache-spec-test.js)
+// variable (e.g. TEST=interpolation mocha test/tmplat-mustache-spec-test.js)
 var fileToRun = process.env.TEST;
 
 // Mustache should work on node 0.6 that doesn't have fs.existsSync

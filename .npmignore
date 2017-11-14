@@ -1,0 +1,5 @@
+spec/
+test/
+.*
+CHANGES.md
+README.md
