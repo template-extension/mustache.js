@@ -566,7 +566,7 @@
     return token[1];
   };
 
-  mustache.name = 'mustache.js';
+  mustache.name = 'tmplat-mustache';
   mustache.version = '2.3.0';
   mustache.tags = [ '{{', '}}' ];
 
