@@ -16,6 +16,7 @@
   }
 }(this, function mustacheFactory (mustache) {
 
+  var objectHasOwnProperty = Object.prototype.hasOwnProperty;
   var objectToString = Object.prototype.toString;
   var isArray = Array.isArray || function isArrayPolyfill (object) {
     return objectToString.call(object) === '[object Array]';
@@ -23,6 +24,10 @@
 
   function isFunction (object) {
     return typeof object === 'function';
+  }
+
+  function isObject (object) {
+    return objectToString.call(object) === '[object Object]';
   }
 
   /**
@@ -37,12 +42,24 @@
     return string.replace(/[\-\[\]{}()*+?.,\\\^$|#\s]/g, '\\$&');
   }
 
-  /**
-   * Null safe way of checking whether or not an object,
-   * including its prototype, has a given property
-   */
-  function hasProperty (obj, propName) {
-    return obj != null && typeof obj === 'object' && (propName in obj);
+  function createPropertyMapper (obj) {
+    if (obj == null) return null;
+
+    var mapper = {};
+    for (var propName in obj) {
+      mapper[propName.toLowerCase()] = propName;
+    }
+
+    return mapper;
+  }
+
+  function getMappedProperty (mapper, propName, obj) {
+    var mappedPropName = mapper && mapper[propName];
+    return mappedPropName && obj[mappedPropName];
+  }
+
+  function hasMappedProperty (mapper, propName) {
+    return mapper != null && (propName in mapper);
   }
 
   // Workaround for https://issues.apache.org/jira/browse/COUCHDB-577
@@ -371,13 +388,15 @@
    * up the context hierarchy if the value is absent in this context's view.
    */
   Context.prototype.lookup = function lookup (name) {
+    name = name && name.toLowerCase();
+
     var cache = this.cache;
 
     var value;
-    if (cache.hasOwnProperty(name)) {
+    if (objectHasOwnProperty.call(cache, name)) {
       value = cache[name];
     } else {
-      var context = this, names, index, lookupHit = false;
+      var context = this, names, mapper, index, lookupHit = false;
 
       while (context) {
         if (name.indexOf('.') > 0) {
@@ -397,14 +416,16 @@
            * `undefined` and we want to avoid looking up parent contexts.
            **/
           while (value != null && index < names.length) {
+            mapper = createPropertyMapper(value);
             if (index === names.length - 1)
-              lookupHit = hasProperty(value, names[index]);
+              lookupHit = hasMappedProperty(mapper, names[index]);
 
-            value = value[names[index++]];
+            value = getMappedProperty(mapper, names[index++], value);
           }
         } else {
-          value = context.view[name];
-          lookupHit = hasProperty(context.view, name);
+          mapper = createPropertyMapper(context.view);
+          value = getMappedProperty(mapper, name, context.view);
+          lookupHit = hasMappedProperty(mapper, name);
         }
 
         if (lookupHit)
@@ -488,8 +509,8 @@
       if (symbol === '#') value = this.renderSection(token, context, partials, originalTemplate);
       else if (symbol === '^') value = this.renderInverted(token, context, partials, originalTemplate);
       else if (symbol === '>') value = this.renderPartial(token, context, partials, originalTemplate);
-      else if (symbol === '&') value = this.unescapedValue(token, context);
-      else if (symbol === 'name') value = this.escapedValue(token, context);
+      else if (symbol === '&') value = this.escapedValue(token, context);
+      else if (symbol === 'name') value = this.unescapedValue(token, context);
       else if (symbol === 'text') value = this.rawValue(token);
 
       if (value !== undefined)
@@ -550,25 +571,46 @@
       return this.renderTokens(this.parse(value), context, partials, value);
   };
 
+  Writer.prototype.decoratedValue = function decorateValue (value, decorator) {
+    if (value == null) return;
+
+    var values;
+    if (isArray(value)) {
+      values = [];
+
+      for (var i = 0, valueLength = value.length; i < valueLength; ++i) {
+        values.push(decorator(value[i]));
+      }
+    } else if (isObject(value)) {
+      values = [];
+
+      for (var propName in value) {
+        if (objectHasOwnProperty.call(value, propName))
+          values.push(decorator(value[propName]));
+      }
+    }
+
+    if (values)
+      return values.length ? values.join(',') : '';
+
+    return decorator(value);
+  };
+
   Writer.prototype.unescapedValue = function unescapedValue (token, context) {
-    var value = context.lookup(token[1]);
-    if (value != null)
-      return value;
+    return this.decoratedValue(context.lookup(token[1]), String);
   };
 
   Writer.prototype.escapedValue = function escapedValue (token, context) {
-    var value = context.lookup(token[1]);
-    if (value != null)
-      return mustache.escape(value);
+    return this.decoratedValue(context.lookup(token[1]), mustache.escape);
   };
 
   Writer.prototype.rawValue = function rawValue (token) {
     return token[1];
   };
 
-  mustache.name = 'mustache.js';
+  mustache.name = 'tmplat-mustache';
   mustache.version = '2.3.0';
-  mustache.tags = [ '{{', '}}' ];
+  mustache.tags = [ '{', '}' ];
 
   // All high-level mustache.* functions use this writer.
   var defaultWriter = new Writer();

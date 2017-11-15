@@ -1,0 +1,4 @@
+test/
+.*
+CHANGES.md
+README.md
