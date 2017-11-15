@@ -25,9 +25,15 @@ $ npm install --save tmplat-chrome
 [tmplat-mustache](https://github.com/tmplat-extension/tmplat-mustache) is very similar to
 [mustache.js](https://github.com/janl/mustache.js) with the following differences:
 
-TODO: Complete list of differences
+* Uses `{unescaped}` and `{{escaped}}` as default tags instead of `{{{unescaped}}}` and `{{escaped}}` respectively
+* `{&name}` is used to escape instead of unescape
+* Ignores case when looking up view properties
+* Arrays are rendered as a comma-separated list based on their contents
+* Objects are rendered as a comma-separated list based on their property values
 
-These make it perfect for usage within the [tmplat](https://tmplat.com) browser extension.
+It is also tested against its own interpretation of the [official spec](https://github.com/mustache/spec).
+
+These changes make it perfect for usage within the [tmplat](https://tmplat.com) browser extension.
 
 The command line tool is identical except for the command name: `tmplat-mustache`.
 

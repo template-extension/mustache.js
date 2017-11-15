@@ -1,4 +1,4 @@
-test/render-test-browser.js
+test/_files/cli_output.txt
 
 node_modules/
 *.log

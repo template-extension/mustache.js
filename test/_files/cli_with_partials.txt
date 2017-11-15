@@ -1,2 +1,4 @@
-Howdy LeBron, CLI roxHowdy LeBron 2, CLI rox
+Howdy LeBron, CLI rox
+Howdy LeBron 2, CLI rox
+
 <h1>A Comedy of Errors</h1>

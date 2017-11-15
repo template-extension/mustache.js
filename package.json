@@ -26,6 +26,7 @@
   "devDependencies": {
     "chai": "^3.4.0",
     "eslint": "^2.5.1",
+    "js-yaml": "^3.10.0",
     "mocha": "^3.0.2",
     "uglify-js": "^3.1.9"
   },
@@ -36,6 +37,6 @@
   "scripts": {
     "build": "uglifyjs --compress --mangle --output tmplat-mustache.min.js tmplat-mustache.js",
     "pretest": "eslint tmplat-mustache.js bin/tmplat-mustache",
-    "test": "mocha --reporter spec test/*-test.js"
+    "test": "mocha --reporter spec \"test/*-test.js\""
   }
 }
