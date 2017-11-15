@@ -25,7 +25,8 @@ $ npm install --save tmplat-chrome
 [tmplat-mustache](https://github.com/tmplat-extension/tmplat-mustache) is very similar to
 [mustache.js](https://github.com/janl/mustache.js) with the following differences:
 
-* Uses `{unescaped}` and `{{escaped}}` as default tags instead of `{{{unescaped}}}` and `{{escaped}}` respectively
+* Uses `{unescaped}` instead of `{{{unescaped}}}`
+* Comments, partials, sections (incl. inverted), and custom delimiters now use single curly braces
 * `{&name}` is used to escape instead of unescape
 * Ignores case when looking up view properties
 * Arrays are rendered as a comma-separated list based on their contents
